@@ -11,14 +11,19 @@ Permission Int: 910941051415696
 project/
 │
 ├── index.js                # boot + interaction router
-├── commands.js             # slash command registration
-├── memory.js               # database layer (SQLite)
+├── loader.js               # slash command registration
+├── memory.js               # database layer (mysql)
 │
 ├── features/
+│   ├── configure/
 │   └── name-change/
-│       ├── index.js        # main handler for /name-change
+│       ├── command.js      # main handler for /name-change
+│       ├── index.js        # Interaction and command parsing
 │       ├── service.js      # business logic
 │       └── ui.js           # buttons + modal builders
+├── helpers/
+│   ├── proto.js            # Add additional prototypes
+│   └── utils.js            # Add functions for convenience
 │
 └── .env
 ```
