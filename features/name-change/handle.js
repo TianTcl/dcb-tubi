@@ -7,74 +7,76 @@ const Utils = require("../../helpers/utils");
 
 // Configurations
 async function setDefault(interaction, guildId, data, config, instances) {
-		const limit = interaction.options.getInteger("limit");
-		if (limit) {
-			if (limit < -1) return interaction.reply({
-				content: "Limit must be -1 (for infinite) or a non-negative integer.",
-				ephemeral: true
-			});
-			config.limit = limit;
-		}
-		const cooldown = interaction.options.getInteger("cooldown");
-		if (cooldown) {
-			if (cooldown < 0) return interaction.reply({
-				content: "Cooldown must be a non-negative integer.",
-				ephemeral: true
-			});
-			config.cooldown = cooldown;
-		}
-		const impersonation = interaction.options.getBoolean("impersonation");
-		if (impersonation !== null) {
-			config.impersonation = impersonation;
-		}
-		const title = interaction.options.getString("title");
-		if (title) {
-			config.title = title;
-		}
-		const description = interaction.options.getString("description");
-		if (description) {
-			config.description = description;
-		}
-		const colour = interaction.options.getString("colour");
-		if (colour) {
-			if (!regex.COLOUR_HEX.test(colour)) return interaction.reply({
-				content: "Invalid colour format. Please provide a hex colour code (e.g. #F7A6F2).\nVisit https://htmlcolorcodes.com for reference.",
-				ephemeral: true
-			});
-			config.colour = colour;
-		}
+	const limit = interaction.options.getInteger("limit");
+	if (limit) {
+		if (limit < -1) return interaction.reply({
+			content: "Limit must be -1 (for infinite) or a non-negative integer.",
+			ephemeral: true
+		});
+		config.limit = limit;
+		await saveGuild(guildId, data);
 		return interaction.reply({
-			content: "Nothing is set.",
+			content: `Default limit set to ${config.limit == -1 ? "infinite" : config.limit} times.`,
+			ephemeral: false
+		});
+	}
+	const cooldown = interaction.options.getInteger("cooldown");
+	if (cooldown) {
+		if (cooldown < 0) return interaction.reply({
+			content: "Cooldown must be a non-negative integer.",
+			ephemeral: true
+		});
+		config.cooldown = cooldown;
+		await saveGuild(guildId, data);
+		return interaction.reply({
+			content: `Default cooldown set to ${Utils.readDuration(config.cooldown)}.`,
 			ephemeral: true
 		});
 	}
-	await saveGuild(guildId, data);
-	switch (field) {
-		case "limit":
-			return interaction.reply({
-				content: `Default limit set to ${config.limit == -1 ? "infinite" : config.limit} times.`,
-				ephemeral: false
-			});
-			break;
-		case "cooldown":
-			return interaction.reply({
-				content: `Default cooldown set to ${Utils.readDuration(config.cooldown)}.`,
-				ephemeral: true
-			});
-			break;
-		case "impersonation":
-			return interaction.reply({
-				content: `Default impersonation set to ${config.impersonation ? "enabled" : "disabled"}.`,
-				ephemeral: false
-			});
-			break;
-		case "colour":
-			return interaction.reply({
-				content: `Default embed colour set to ${config.colour || "none"}.`,
-				ephemeral: false
-			});
-			break;
+	const impersonation = interaction.options.getBoolean("impersonation");
+	if (impersonation !== null) {
+		config.impersonation = impersonation;
+		await saveGuild(guildId, data);
+		return interaction.reply({
+			content: `Default impersonation set to ${config.impersonation ? "enabled" : "disabled"}.`,
+			ephemeral: false
+		});
 	}
+	const title = interaction.options.getString("title");
+	if (title) {
+		config.title = title;
+		await saveGuild(guildId, data);
+		return interaction.reply({
+			content: `Default title set to ${config.title}.`,
+			ephemeral: false
+		});
+	}
+	const description = interaction.options.getString("description");
+	if (description) {
+		config.description = description;
+		await saveGuild(guildId, data);
+		return interaction.reply({
+			content: `Default description set to ${config.description}.`,
+			ephemeral: false
+		});
+	}
+	const colour = interaction.options.getString("colour");
+	if (colour) {
+		if (!regex.COLOUR_HEX.test(colour)) return interaction.reply({
+			content: "Invalid colour format. Please provide a hex colour code (e.g. #F7A6F2).\nVisit https://htmlcolorcodes.com for reference.",
+			ephemeral: true
+		});
+		config.colour = colour;
+		await saveGuild(guildId, data);
+		return interaction.reply({
+			content: `Default embed colour set to ${config.colour || "none"}.`,
+			ephemeral: false
+		});
+	}
+	return interaction.reply({
+		content: "Nothing is set.",
+		ephemeral: true
+	});
 }
 
 // Instances
