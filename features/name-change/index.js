@@ -64,7 +64,15 @@ async function handleInteraction(interaction) {
 			// - Check against common names (e.g. "Admin", "Moderator")
 		}
 		// Complete action
-		await member.setNickname(newName);
+		try {
+			await member.setNickname(newName);
+		} catch (err) {
+			console.error(err);
+			return interaction.reply({
+				content: "I cannot change your nickname due to role hierarchy permissions.",
+				ephemeral: true
+			});
+		}
 		recordUse(state, newName);
 		await saveGuild(guildId, data);
 		return interaction.reply({
