@@ -9,16 +9,6 @@ module.exports = [
 		.addSubcommand(sub => sub
 			.setName("set-default")
 			.setDescription("Set default values for name change actions")
-			// .addStringOption(opt => opt
-			// 	.setName("field")
-			// 	.setDescription("Field to set default value for")
-			// 	.setRequired(true)
-			// 	.addChoices(
-			// 		{name: "limit", value: "limit"},
-			// 		{name: "cooldown", value: "cooldown"},
-			// 		{name: "allow impersonation", value: "impersonation"}
-			// 	)
-			// )
 			.addIntegerOption(opt => opt
 				.setName("limit")
 				.setDescription("Default usage limit (-1 for infinite)")
@@ -48,7 +38,7 @@ module.exports = [
 			)
 			.addStringOption(opt => opt
 				.setName("colour")
-				.setDescription("Hex colour (e.g. #F7A6BA)")
+				.setDescription("Hex colour (e.g. #F7A6F2)")
 				.setRequired(false)
 			)
 		)
@@ -73,7 +63,7 @@ module.exports = [
 			)
 			.addStringOption(opt => opt
 				.setName("colour")
-				.setDescription("Hex colour (e.g. #F7A6BA)")
+				.setDescription("Hex colour (e.g. #F7A6F2)")
 				.setRequired(false)
 			)
 			.addBooleanOption(opt => opt

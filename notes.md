@@ -30,7 +30,7 @@ project/
 
 # Self paste notes
 
-colour: 1) #F7A6BA 2) #5865F2
+colour: 1) #F7A6F2 2) #5865F2
 
 ## TODOs
 

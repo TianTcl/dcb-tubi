@@ -7,41 +7,46 @@ const Utils = require("../../helpers/utils");
 
 // Configurations
 async function setDefault(interaction, guildId, data, config, instances) {
-	const field = interaction.options.getString("field");
-	switch (field) {
-		case "limit":
-			const limit = interaction.options.getInteger("limit");
+		const limit = interaction.options.getInteger("limit");
+		if (limit) {
 			if (limit < -1) return interaction.reply({
 				content: "Limit must be -1 (for infinite) or a non-negative integer.",
 				ephemeral: true
 			});
 			config.limit = limit;
-			break;
-		case "cooldown":
-			const cooldown = interaction.options.getInteger("cooldown");
+		}
+		const cooldown = interaction.options.getInteger("cooldown");
+		if (cooldown) {
 			if (cooldown < 0) return interaction.reply({
 				content: "Cooldown must be a non-negative integer.",
 				ephemeral: true
 			});
 			config.cooldown = cooldown;
-			break;
-		case "impersonation":
-			config.impersonation = interaction.options.getBoolean("impersonation");
-			break;
-		case "title":
-			config.title = interaction.options.getString("title");
-			break;
-		case "description":
-			config.description = interaction.options.getString("description");
-			break;
-		case "colour":
-			const colour = interaction.options.getString("colour");
-			if (colour && !regex.COLOUR_HEX.test(colour)) return interaction.reply({
-				content: "Invalid colour format. Please provide a hex colour code (e.g. #F7A6BA).\nVisit https://htmlcolorcodes.com for reference.",
+		}
+		const impersonation = interaction.options.getBoolean("impersonation");
+		if (impersonation !== null) {
+			config.impersonation = impersonation;
+		}
+		const title = interaction.options.getString("title");
+		if (title) {
+			config.title = title;
+		}
+		const description = interaction.options.getString("description");
+		if (description) {
+			config.description = description;
+		}
+		const colour = interaction.options.getString("colour");
+		if (colour) {
+			if (!regex.COLOUR_HEX.test(colour)) return interaction.reply({
+				content: "Invalid colour format. Please provide a hex colour code (e.g. #F7A6F2).\nVisit https://htmlcolorcodes.com for reference.",
 				ephemeral: true
 			});
 			config.colour = colour;
-			break;
+		}
+		return interaction.reply({
+			content: "Nothing is set.",
+			ephemeral: true
+		});
 	}
 	await saveGuild(guildId, data);
 	switch (field) {
@@ -84,7 +89,7 @@ async function setup(interaction, guildId, data, config, instances) {
 	// Validate inputs
 	if (colour && !regex.COLOUR_HEX.test(colour)) {
 		await interaction.reply({
-			content: "Invalid colour format. Please provide a hex colour code (e.g. #F7A6BA).\nVisit https://htmlcolorcodes.com for reference.\nSetup will use default colour for now. You can change it later with the edit command.",
+			content: "Invalid colour format. Please provide a hex colour code (e.g. #F7A6F2).\nVisit https://htmlcolorcodes.com for reference.\nSetup will use default colour for now. You can change it later with the edit command.",
 			ephemeral: true
 		});
 		colour = null;
@@ -131,7 +136,7 @@ async function edit(interaction, guildId, data, config, instances) {
 
 	// Update saved data
 	if (field === "colour" && value && !regex.COLOUR_HEX.test(value)) return interaction.reply({
-		content: "Invalid colour format. Please provide a hex colour code (e.g. #F7A6BA).\nVisit https://htmlcolorcodes.com for reference.",
+		content: "Invalid colour format. Please provide a hex colour code (e.g. #F7A6F2).\nVisit https://htmlcolorcodes.com for reference.",
 		ephemeral: true
 	});
 	instance[field] = value;
