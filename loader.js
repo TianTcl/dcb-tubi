@@ -17,10 +17,13 @@ const nameChange = require("./features/name-change");
 
 async function handleInteraction(interaction) {
 	// Slash commands
-	if (interaction.isChatInputCommand()) switch (interaction.commandName) {
-		case "name-change":
-			return nameChange.handleCommand(interaction);
-			break;
+	if (interaction.isChatInputCommand()) {
+		console.info(`User ${interaction.user.tag} executed command ${interaction.options.getSubcommandGroup(false) ? `${interaction.options.getSubcommandGroup(false)} ` : ""}${interaction.options.getSubcommand(false) ? `${interaction.options.getSubcommand(false)} ` : ""}${interaction.commandName}`);
+		switch (interaction.commandName) {
+			case "name-change":
+				return nameChange.handleCommand(interaction);
+				break;
+		}
 	}
 	// Components
 	if (interaction.isButton() || interaction.isModalSubmit()) {

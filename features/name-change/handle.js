@@ -255,6 +255,7 @@ async function history(interaction, guildId, data, config, instances) {
 module.exports = {
 	setDefault,
 	setup,
+	edit,
 	deleteInstance,
 	add,
 	remove,
