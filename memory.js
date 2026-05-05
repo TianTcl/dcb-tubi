@@ -19,6 +19,9 @@ async function getGuild(guildId) {
 		config: {},
 		app: {
 			"name-change": {
+				title: "✏️ Display Name Change",
+				description: "Click the button below to change your display name.\n⚠️ You may only use this once (or per server config).",
+				colour: "F7A6BA",
 				limit: 1,
 				cooldown: 7*24*60*60, // 7 days
 				impersonation: true,
@@ -38,6 +41,13 @@ async function saveGuild(guildId, data) {
 	await pool.query(
 		"UPDATE tubi_data SET data=? WHERE guild_id=?",
 		[JSON.stringify(data), guildId]
+	);
+}
+
+async function purgeGuild(guildId) {
+	await pool.query(
+		"DELETE FROM tubi_data WHERE guild_id=?",
+		[guildId]
 	);
 }
 

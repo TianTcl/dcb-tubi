@@ -16,10 +16,15 @@ function loadCommands() {
 const nameChange = require("./features/name-change");
 
 async function handleInteraction(interaction) {
+	// Slash commands
 	if (interaction.isChatInputCommand()) switch (interaction.commandName) {
 		case "name-change":
 			return nameChange.handleCommand(interaction);
 			break;
+	}
+	// Components
+	if (interaction.isButton() || interaction.isModalSubmit()) {
+		return nameChange.handleInteraction(interaction);
 	}
 	return interaction.reply({
 		content: "Unknown command :(",

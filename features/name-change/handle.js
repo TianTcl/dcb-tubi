@@ -1,6 +1,8 @@
 const { getGuild, saveGuild } = require("../../memory");
 const { getUserState, canUse, recordUse, hasPrivilege } = require("./service");
 const { buildButton, buildModal } = require("./ui");
+const { EmbedBuilder } = require("discord.js");
+const regex = require("../../helpers/regex");
 const Utils = require("../../helpers/utils");
 
 // Configurations
@@ -8,13 +10,37 @@ async function setDefault(interaction, guildId, data, config, instances) {
 	const field = interaction.options.getString("field");
 	switch (field) {
 		case "limit":
-			config.limit = interaction.options.getInteger("limit");
+			const limit = interaction.options.getInteger("limit");
+			if (limit < -1) return interaction.reply({
+				content: "Limit must be -1 (for infinite) or a non-negative integer.",
+				ephemeral: true
+			});
+			config.limit = limit;
 			break;
 		case "cooldown":
-			config.cooldown = interaction.options.getInteger("cooldown");
+			const cooldown = interaction.options.getInteger("cooldown");
+			if (cooldown < 0) return interaction.reply({
+				content: "Cooldown must be a non-negative integer.",
+				ephemeral: true
+			});
+			config.cooldown = cooldown;
 			break;
 		case "impersonation":
 			config.impersonation = interaction.options.getBoolean("impersonation");
+			break;
+		case "title":
+			config.title = interaction.options.getString("title");
+			break;
+		case "description":
+			config.description = interaction.options.getString("description");
+			break;
+		case "colour":
+			const colour = interaction.options.getString("colour");
+			if (colour && !regex.COLOUR_HEX.test(colour)) return interaction.reply({
+				content: "Invalid colour format. Please provide a hex colour code (e.g. #F7A6BA).\nVisit https://htmlcolorcodes.com for reference.",
+				ephemeral: true
+			});
+			config.colour = colour;
 			break;
 	}
 	await saveGuild(guildId, data);
@@ -37,25 +63,48 @@ async function setDefault(interaction, guildId, data, config, instances) {
 				ephemeral: false
 			});
 			break;
+		case "colour":
+			return interaction.reply({
+				content: `Default embed colour set to ${config.colour || "none"}.`,
+				ephemeral: false
+			});
+			break;
 	}
 }
 
 // Instances
 async function setup(interaction, guildId, data, config, instances) {
 	const channel = interaction.options.getChannel("channel"),
-		colour = interaction.options.getString("colour"),
+		title = interaction.options.getString("title"),
+		description = interaction.options.getString("description"),
 		impersonation = interaction.options.getBoolean("impersonation");
+	var colour = interaction.options.getString("colour");
 	const instanceId = instances.length;
+
+	// Validate inputs
+	if (colour && !regex.COLOUR_HEX.test(colour)) {
+		await interaction.reply({
+			content: "Invalid colour format. Please provide a hex colour code (e.g. #F7A6BA).\nVisit https://htmlcolorcodes.com for reference.\nSetup will use default colour for now. You can change it later with the edit command.",
+			ephemeral: true
+		});
+		colour = null;
+	}
 
 	const instance = {
 		id: instanceId,
 		channelId: channel.id,
-		colour: colour || null,
+		title: title || config.title,
+		description: description || config.description,
+		colour: colour || config.colour,
 		impersonation: impersonation ?? config.impersonation
 	};
 
+	const embed = new EmbedBuilder()
+		.setTitle(instance.title)
+		.setDescription(instance.description)
+		.setColor(instance.colour);
 	const msg = await channel.send({
-		content: "Click below to change your display name.",
+		embeds: [embed],
 		components: [buildButton(instanceId)]
 	});
 
@@ -64,7 +113,7 @@ async function setup(interaction, guildId, data, config, instances) {
 	await saveGuild(guildId, data);
 
 	return interaction.reply({
-		content: `Setup complete in <#${channel.id}>`,
+		content: `Setup complete in <#${channel.id}> with message ID ${msg.id}.`,
 		ephemeral: false
 	});
 }
@@ -80,9 +129,23 @@ async function edit(interaction, guildId, data, config, instances) {
 		ephemeral: true
 	});
 
+	// Update saved data
+	if (field === "colour" && value && !regex.COLOUR_HEX.test(value)) return interaction.reply({
+		content: "Invalid colour format. Please provide a hex colour code (e.g. #F7A6BA).\nVisit https://htmlcolorcodes.com for reference.",
+		ephemeral: true
+	});
 	instance[field] = value;
-
 	await saveGuild(guildId, data);
+
+	// Update message
+	const channel = await interaction.client.channels.fetch(instance.channelId);
+	const msg = await channel.messages.fetch(messageId);
+	const embed = EmbedBuilder.from(msg.embeds[0])
+		.setTitle(instance.title)
+		.setDescription(instance.description)
+		.setColor(instance.colour);
+	msg.edit({ embeds: [embed] });
+
 	return interaction.reply({ content: "Message has been updated.", ephemeral: true });
 }
 

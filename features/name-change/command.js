@@ -36,6 +36,21 @@ module.exports = [
 				.setDescription("Allow impersonation")
 				.setRequired(false)
 			)
+			.addStringOption(opt => opt
+				.setName("title")
+				.setDescription("Default title for the embed")
+				.setRequired(false)
+			)
+			.addStringOption(opt => opt
+				.setName("description")
+				.setDescription("Default description for the embed")
+				.setRequired(false)
+			)
+			.addStringOption(opt => opt
+				.setName("colour")
+				.setDescription("Hex colour (e.g. #F7A6BA)")
+				.setRequired(false)
+			)
 		)
 		// Instances
 		.addSubcommand(sub => sub
@@ -45,6 +60,16 @@ module.exports = [
 				.setName("channel")
 				.setDescription("Channel to send the message to")
 				.setRequired(true)
+			)
+			.addStringOption(opt => opt
+				.setName("title")
+				.setDescription("Custom title for the embed")
+				.setRequired(false)
+			)
+			.addStringOption(opt => opt
+				.setName("description")
+				.setDescription("Custom description for the embed")
+				.setRequired(false)
 			)
 			.addStringOption(opt => opt
 				.setName("colour")
@@ -70,6 +95,8 @@ module.exports = [
 				.setDescription("Field to edit")
 				.setRequired(true)
 				.addChoices(
+					{ name: "title", value: "title" },
+					{ name: "description", value: "description" },
 					{ name: "colour", value: "colour" }
 				)
 			)

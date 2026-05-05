@@ -31,3 +31,11 @@ project/
 # Self paste notes
 
 colour: 1) #F7A6BA 2) #5865F2
+
+## TODOs
+
+In /features/name-change
+- Add: banner img, footer customization to embed
+In /features/configure
+- add /config command
+- add /reset <confirm> command: purgeGuild()
