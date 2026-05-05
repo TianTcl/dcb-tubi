@@ -113,7 +113,7 @@ async function setup(interaction, guildId, data, config, instances) {
 	await saveGuild(guildId, data);
 
 	return interaction.reply({
-		content: `Setup complete in <#${channel.id}> with message ID ${msg.id}.`,
+		content: `Setup complete in <#${channel.id}>.\nThe message ID is ${msg.id} [[jump to message](https://discord.com/channels/${guildId}/${channel.id}/${msg.id})].`,
 		ephemeral: false
 	});
 }
