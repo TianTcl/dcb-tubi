@@ -1,5 +1,6 @@
 const { getGuild, saveGuild } = require("../../memory");
 const { getUserState, canUse, recordUse, hasPrivilege } = require("./service");
+const { buildButton, buildModal } = require("./ui");
 const Utils = require("../../helpers/utils");
 
 // Configurations

@@ -13,7 +13,7 @@ async function getGuild(guildId) {
 		"SELECT data FROM tubi_data WHERE guild_id=?",
 		[guildId]
 	);
-	if (rows.length) return rows[0].data;
+	if (rows.length) return JSON.parse(rows[0].data);
 	// Initialize default data if not exists
 	const base = {
 		config: {},

@@ -20,7 +20,7 @@ async function deployCommands(client) {
 			{ body: commands }
 		);
 		else {
-			const guilds = await client.guilds.fetch();
+			var guilds = await client.guilds.fetch();
 			for (const [guildId] of guilds)
 				await rest.put(
 					Routes.applicationGuildCommands(process.env.CLIENT_ID, guildId),
