@@ -4,11 +4,11 @@ module.exports = [
 	new SlashCommandBuilder()
 		.setName("name-change")
 		.setDescription("Manage nickname changing system")
+		.setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
 		// Configurations
 		.addSubcommand(sub => sub
 			.setName("set-default")
 			.setDescription("Set default values for name change actions")
-			.setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
 			// .addStringOption(opt => opt
 			// 	.setName("field")
 			// 	.setDescription("Field to set default value for")
@@ -39,9 +39,8 @@ module.exports = [
 		)
 		// Instances
 		.addSubcommand(sub => sub
-			.setName(`${prefix} setup`)
+			.setName("setup")
 			.setDescription("Setup an actionable message for users to change their nickname")
-			.setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
 			.addChannelOption(opt => opt
 				.setName("channel")
 				.setDescription("Channel to send the message to")
@@ -59,9 +58,8 @@ module.exports = [
 			)
 		)
 		.addSubcommand(sub => sub
-			.setName(`${prefix} edit`)
+			.setName("edit")
 			.setDescription("Edit the name change message for this server")
-			.setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
 			.addStringOption(opt => opt
 				.setName("message_id")
 				.setDescription("Target message ID")
@@ -82,9 +80,8 @@ module.exports = [
 			)
 		)
 		.addSubcommand(sub => sub
-			.setName(`${prefix} delete`)
+			.setName("delete")
 			.setDescription("Delete the name change message (along with its configuration) for this server")
-			.setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
 			.addStringOption(opt => opt
 				.setName("message_id")
 				.setDescription("Message ID to remove")
@@ -93,9 +90,8 @@ module.exports = [
 		)
 		// User controlling
 		.addSubcommand(sub => sub
-			.setName(`${prefix} add`)
+			.setName("add")
 			.setDescription("Increment the allowance count for a user (if not infinite)")
-			.setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
 			.addUserOption(opt => opt
 				.setName("user")
 				.setDescription("User to add allowance for")
@@ -108,9 +104,8 @@ module.exports = [
 			)
 		)
 		.addSubcommand(sub => sub
-			.setName(`${prefix} remove`)
+			.setName("remove")
 			.setDescription("Decrement the allowance count for a user (if not infinite)")
-			.setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
 			.addUserOption(opt => opt
 				.setName("user")
 				.setDescription("User to remove allowance for")
@@ -123,9 +118,8 @@ module.exports = [
 			)
 		)
 		.addSubcommand(sub => sub
-			.setName(`${prefix} reset`)
+			.setName("reset")
 			.setDescription("Reset a user's allowance count to the default")
-			.setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
 			.addUserOption(opt => opt
 				.setName("user")
 				.setDescription("User to reset allowance for")
@@ -142,9 +136,8 @@ module.exports = [
 			)
 		)
 		.addSubcommand(sub => sub
-			.setName(`${prefix} set-user-limit`)
+			.setName("set-user-limit")
 			.setDescription("Set a user's allowance count to a specific value. (-1 for infinite)")
-			.setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
 			.addUserOption(opt => opt
 				.setName("user")
 				.setDescription("User to set limit for")
@@ -158,7 +151,7 @@ module.exports = [
 		)
 		// Statistical
 		.addSubcommand(sub => sub
-			.setName(`${prefix} stats`)
+			.setName("stats")
 			.setDescription("View name change statistics for this server or a specific user")
 			.addUserOption(opt => opt
 				.setName("user")
@@ -167,7 +160,7 @@ module.exports = [
 			)
 		)
 		.addSubcommand(sub => sub
-			.setName(`${prefix} history`)
+			.setName("history")
 			.setDescription("View the name change history for this server")
 			.addUserOption(opt => opt
 				.setName("user")

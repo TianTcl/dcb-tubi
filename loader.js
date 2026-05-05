@@ -1,13 +1,13 @@
 const fs = require("fs");
 const path = require("path");
-requirer("dotenv").config();
+require("dotenv").config();
 
 // Import commands
 function loadCommands() {
 	const commands = [];
 
 	const nc = require("./features/name-change/command");
-	commands.push(nc);
+	commands.push(...nc);
 
 	return commands.map(cmd => cmd.toJSON());
 }
