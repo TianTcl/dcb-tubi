@@ -14,11 +14,8 @@ function getUserState(data, userId) {
 }
 
 function hasPrivilege(interaction, data) {
-	if (!interaction.member.permissions.has("MANAGE_NICKNAMES"))
-		return false;
-	if (!interaction.member.permissions.has("Administrator"))
-		return false;
-	return true;
+	return interaction.member.permissions.has("MANAGE_NICKNAMES")
+		|| interaction.member.permissions.has("Administrator");
 }
 
 function canUse(state, config) {
@@ -98,7 +95,7 @@ async function validateName(newName, guild, config, instance) {
 async function syncAutoRole(user, state, config, interaction=null) {
 	if (!config.autoRole) return;
 	const member = interaction == null ? user : await interaction.guild.members.fetch(user.id),
-		role = await member.guild.roles.cache.get(config.autoRole);
+		role = member.guild.roles.cache.get(config.autoRole);
 	if (!role) return;
 	const remaining = getRemaining(state, config);
 	if (remaining === Infinity || remaining > 0) {
