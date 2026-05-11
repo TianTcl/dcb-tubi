@@ -130,6 +130,20 @@ module.exports = [
 			)
 		)
 		.addSubcommand(sub => sub
+			.setName("role-add")
+			.setDescription("Increment the allowance count for a users of specified role (if not infinite)")
+			.addRoleOption(opt => opt
+				.setName("role")
+				.setDescription("Role to add users' allowance for")
+				.setRequired(true)
+			)
+			.addIntegerOption(opt => opt
+				.setName("amount")
+				.setDescription("Amount to add to the role users' allowance")
+				.setRequired(true)
+			)
+		)
+		.addSubcommand(sub => sub
 			.setName("remove")
 			.setDescription("Decrement the allowance count for a user (if not infinite)")
 			.addUserOption(opt => opt
@@ -140,6 +154,20 @@ module.exports = [
 			.addIntegerOption(opt => opt
 				.setName("amount")
 				.setDescription("Amount to remove from the user's allowance")
+				.setRequired(true)
+			)
+		)
+		.addSubcommand(sub => sub
+			.setName("role-remove")
+			.setDescription("Decrement the allowance count for a users of specified role (if not infinite)")
+			.addRoleOption(opt => opt
+				.setName("role")
+				.setDescription("Role to remove users' allowance for")
+				.setRequired(true)
+			)
+			.addIntegerOption(opt => opt
+				.setName("amount")
+				.setDescription("Amount to remove from the role users' allowance")
 				.setRequired(true)
 			)
 		)
@@ -162,7 +190,25 @@ module.exports = [
 			)
 		)
 		.addSubcommand(sub => sub
-			.setName("set-user-limit")
+			.setName("role-reset")
+			.setDescription("Reset role users' allowance count to the default")
+			.addRoleOption(opt => opt
+				.setName("role")
+				.setDescription("Role to reset users' allowance for")
+				.setRequired(true)
+			)
+			.addStringOption(opt => opt
+				.setName("field")
+				.setDescription("Field to reset")
+				.setRequired(false)
+				.addChoices(
+					{ name: "used", value: "used" },
+					{ name: "limit", value: "limit" }
+				)
+			)
+		)
+		.addSubcommand(sub => sub
+			.setName("limit")
 			.setDescription("Set a user's allowance count to a specific value. (-1 for infinite)")
 			.addUserOption(opt => opt
 				.setName("user")
@@ -176,16 +222,16 @@ module.exports = [
 			)
 		)
 		.addSubcommand(sub => sub
-			.setName("set-role-limit")
+			.setName("role-limit")
 			.setDescription("Set a role users' allowance count to a specific value. (-1 for infinite)")
 			.addRoleOption(opt => opt
 				.setName("role")
-				.setDescription("Role to set limit for")
+				.setDescription("Role to set users' limit for")
 				.setRequired(true)
 			)
 			.addIntegerOption(opt => opt
 				.setName("limit")
-				.setDescription("New allowance limit for the user")
+				.setDescription("New allowance limit for the role users")
 				.setRequired(true)
 			)
 		)

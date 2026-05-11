@@ -94,8 +94,9 @@ async function validateName(newName, guild, config, instance) {
 
 async function syncAutoRole(user, state, config, interaction=null) {
 	if (!config.autoRole) return;
-	const member = interaction == null ? user : await interaction.guild.members.fetch(user.id),
-		role = member.guild.roles.cache.get(config.autoRole);
+	const member = interaction == null ? user : await interaction.guild.members.fetch(user.id);
+	if (member.user.bot) return;
+	const role = member.guild.roles.cache.get(config.autoRole);
 	if (!role) return;
 	const remaining = getRemaining(state, config);
 	if (remaining === Infinity || remaining > 0) {

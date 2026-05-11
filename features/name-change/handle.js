@@ -30,10 +30,10 @@ async function setDefault(interaction, guildId, data, config, instances) {
 		// 	const state = getUserState(data, member.id);
 		// 	if (state.limit === null) await syncAutoRole(member, state, config);
 		// }
+		await interaction.deferReply({ ephemeral: false });
 		await syncAllAutoRoles(interaction.guild, data, config);
-		return interaction.reply({
-			content: `Default limit set to ${config.limit == -1 ? "infinite" : config.limit} times.`,
-			ephemeral: false
+		return interaction.editReply({
+			content: `Default limit set to ${config.limit == -1 ? "infinite" : config.limit} times.`
 		});
 	}
 	const cooldown = interaction.options.getInteger("cooldown");
@@ -104,10 +104,10 @@ async function autoRole(interaction, guildId, data, config, instances) {
 	});
 	config.autoRole = role?.id || null;
 	await saveGuild(guildId, data);
+	await interaction.deferReply({ ephemeral: false });
 	await syncAllAutoRoles(interaction.guild, data, config);
-	return interaction.reply({
-		content: config.autoRole ? `Auto role <@&${config.autoRole}> has been set.\nThis role will be automatically assigned to users who can still change their nickname.` : "Auto role has been disabled.",
-		ephemeral: false
+	return interaction.editReply({
+		content: config.autoRole ? `Auto role <@&${config.autoRole}> has been set.\nThis role will be automatically assigned to users who can still change their nickname.` : "Auto role has been disabled."
 	});
 }
 
@@ -211,11 +211,33 @@ async function add(interaction, guildId, data, config, instances) {
 		amount = interaction.options.getInteger("amount"),
 		state = getUserState(data, user.id);
 
-	if (state.limit > 0) state.limit += amount;
+	if (isInfinite(state, config)) return interaction.reply({
+		content: `${user.tag} already has infinite name changes.`,
+		ephemeral: true
+	});
+
+	state.limit += amount;
 
 	await saveGuild(guildId, data);
 	await syncAutoRole(user, state, config, interaction);
 	return interaction.reply({ content: `Added ${amount} to ${user.tag}'s limit.`, ephemeral: false });
+}
+
+async function roleAdd(interaction, guildId, data, config, instances) {
+	const role = interaction.options.getRole("role"),
+		amount = interaction.options.getInteger("amount"),
+		members = await interaction.guild.members.fetch({ role: role.id });
+
+	await interaction.deferReply({ ephemeral: false });
+	for (const member of members.values()) {
+		const state = getUserState(data, member.id);
+		if (isInfinite(state, config)) continue; // Ignoring if already infinite
+		state.limit += amount;
+		await syncAutoRole(member, state, config);
+	}
+
+	await saveGuild(guildId, data);
+	return interaction.editReply({ content: `Added ${amount} to all users with role ${role.name}.` });
 }
 
 async function remove(interaction, guildId, data, config, instances) {
@@ -223,11 +245,33 @@ async function remove(interaction, guildId, data, config, instances) {
 		amount = interaction.options.getInteger("amount"),
 		state = getUserState(data, user.id);
 
-	if (state.limit > 0) state.limit = Math.max(0, state.limit - amount); // Ignoring if used will be more than limit
+	if (isInfinite(state, config)) return interaction.reply({
+		content: `${user.tag} has infinite name changes.`,
+		ephemeral: true
+	});
+
+	state.limit = Math.max(0, state.limit - amount); // Ignoring if used will be more than limit
 
 	await saveGuild(guildId, data);
 	await syncAutoRole(user, state, config, interaction);
 	return interaction.reply({ content: `Removed ${amount} from ${user.tag}'s limit.`, ephemeral: false });
+}
+
+async function roleRemove(interaction, guildId, data, config, instances) {
+	const role = interaction.options.getRole("role"),
+		amount = interaction.options.getInteger("amount"),
+		members = await interaction.guild.members.fetch({ role: role.id });
+
+	await interaction.deferReply({ ephemeral: false });
+	for (const member of members.values()) {
+		const state = getUserState(data, member.id);
+		if (isInfinite(state, config)) continue; // Ignoring if already infinite
+		state.limit = Math.max(0, state.limit - amount); // Ignoring if used will be more than limit
+		await syncAutoRole(member, state, config);
+	}
+
+	await saveGuild(guildId, data);
+	return interaction.editReply({ content: `Removed ${amount} from all users with role ${role.name}.` });
 }
 
 async function reset(interaction, guildId, data, config, instances) {
@@ -235,23 +279,48 @@ async function reset(interaction, guildId, data, config, instances) {
 		field = interaction.options.getString("field");
 		state = getUserState(data, user.id);
 
-	if (field === "limit")
+	var fields = [field].filter();
+	if (!fields.length) fields = ["used", "limit"]; // "cooldown"
+
+	if (fields.includes("limit")) {
 		state.limit = null;
-	else if (field === "used")
+	} if (fields.includes("used")) {
 		state.used = 0;
-	// else if (field === "cooldown")
+	} // if (fields.includes("cooldown")) {
 	// 	state.cooldown = 0;
-	else {
-		state.used = 0;
-		state.limit = null;
-	}
+	// }
 
 	await saveGuild(guildId, data);
 	await syncAutoRole(user, state, config, interaction);
 	return interaction.reply({ content: `User ${user.tag}'s name changing manifest has been reset.`, ephemeral: false });
 }
 
-async function setUserLimit(interaction, guildId, data, config, instances) {
+async function roleReset(interaction, guildId, data, config, instances) {
+	const role = interaction.options.getRole("role"),
+		field = interaction.options.getString("field"),
+		members = await interaction.guild.members.fetch({ role: role.id });
+
+	var fields = [field].filter();
+	if (!fields.length) fields = ["used", "limit"]; // "cooldown"
+
+	await interaction.deferReply({ ephemeral: false });
+	for (const member of members.values()) {
+		const state = getUserState(data, member.id);
+		if (fields.includes("limit")) {
+			state.limit = null;
+		} if (fields.includes("used")) {
+			state.used = 0;
+		} // if (fields.includes("cooldown")) {
+		// 	state.cooldown = 0;
+		// }
+		await syncAutoRole(member, state, config);
+	}
+
+	await saveGuild(guildId, data);
+	return interaction.editReply({ content: `Role ${role.name} users' name changing manifest has been reset.` });
+}
+
+async function limit(interaction, guildId, data, config, instances) {
 	const user = interaction.options.getUser("user"),
 		limit = interaction.options.getInteger("limit"),
 		state = getUserState(data, user.id);
@@ -263,11 +332,12 @@ async function setUserLimit(interaction, guildId, data, config, instances) {
 	return interaction.reply({ content: `User ${user.tag}'s limit has been updated to ${state.limit < 0 ? "infinity" : state.limit}.`, ephemeral: false });
 }
 
-async function setRoleLimit(interaction, guildId, data, config, instances) {
+async function roleLimit(interaction, guildId, data, config, instances) {
 	const role = interaction.options.getRole("role"),
 		limit = interaction.options.getInteger("limit"),
 		members = await interaction.guild.members.fetch({ role: role.id });
 
+	await interaction.deferReply({ ephemeral: false });
 	for (const member of members.values()) {
 		const state = getUserState(data, member.id);
 		state.limit = Math.max(-1, limit); // -1 for infinite
@@ -275,7 +345,7 @@ async function setRoleLimit(interaction, guildId, data, config, instances) {
 	}
 
 	await saveGuild(guildId, data);
-	return interaction.reply({ content: `Role ${role.name} users limit has been updated to ${limit < 0 ? "infinity" : limit}.`, ephemeral: false });
+	return interaction.editReply({ content: `Role ${role.name} users limit has been updated to ${limit < 0 ? "infinity" : limit}.` });
 }
 
 // Statistical
@@ -318,11 +388,10 @@ module.exports = {
 	setup,
 	edit,
 	deleteInstance,
-	add,
-	remove,
-	reset,
-	setUserLimit,
-	setRoleLimit,
+	add,	roleAdd,
+	remove,	roleRemove,
+	reset,	roleReset,
+	limit,	roleLimit,
 	stats,
 	history
 };
