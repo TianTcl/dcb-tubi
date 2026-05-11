@@ -21,11 +21,12 @@ async function getGuild(guildId) {
 			"name-change": {
 				title: "✏️ Display Name Change",
 				description: "Click the button below to change your display name.\n⚠️ You may only use this once (or per server config).",
-				colour: "F7A6F2",
+				colour: "#F7A6F2",
 				limit: 1,
 				cooldown: 7*24*60*60, // 7 days
 				impersonation: true,
-				instance: []
+				instance: [],
+				autoRole: null
 			}
 		},
 		user: {}

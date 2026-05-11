@@ -42,6 +42,15 @@ module.exports = [
 				.setRequired(false)
 			)
 		)
+		.addSubcommand(sub => sub
+			.setName("auto-role")
+			.setDescription("Set a role to be automatically assigned/removed based on users' name change allowance")
+			.addRoleOption(opt => opt
+				.setName("role")
+				.setDescription("Role to assign/remove (leave empty to disable)")
+				.setRequired(false)
+			)
+		)
 		// Instances
 		.addSubcommand(sub => sub
 			.setName("setup")
@@ -158,6 +167,20 @@ module.exports = [
 			.addUserOption(opt => opt
 				.setName("user")
 				.setDescription("User to set limit for")
+				.setRequired(true)
+			)
+			.addIntegerOption(opt => opt
+				.setName("limit")
+				.setDescription("New allowance limit for the user")
+				.setRequired(true)
+			)
+		)
+		.addSubcommand(sub => sub
+			.setName("set-role-limit")
+			.setDescription("Set a role users' allowance count to a specific value. (-1 for infinite)")
+			.addRoleOption(opt => opt
+				.setName("role")
+				.setDescription("Role to set limit for")
 				.setRequired(true)
 			)
 			.addIntegerOption(opt => opt

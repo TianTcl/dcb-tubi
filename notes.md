@@ -18,24 +18,27 @@ project/
 │   ├── configure/
 │   └── name-change/
 │       ├── command.js      # main handler for /name-change
+│       ├── handle.js       # Map commands and validate inputs
 │       ├── index.js        # Interaction and command parsing
 │       ├── service.js      # business logic
 │       └── ui.js           # buttons + modal builders
 ├── helpers/
 │   ├── proto.js            # Add additional prototypes
+│   ├── regex.js            # Central Regular Expression reference
 │   └── utils.js            # Add functions for convenience
 │
 └── .env
 ```
 
-# Self paste notes
-
-colour: 1) #F7A6F2 2) #5865F2
-
 ## TODOs
 
 In /features/name-change
-- Add: banner img, footer customization to embed
+- Implement name filtering
+- Autorole: role
 In /features/configure
-- add /config command
 - add /reset <confirm> command: purgeGuild()
+- add /config command
+
+# Self paste notes
+
+colour: 1) #F7A6F2 2) #5865F2

@@ -113,7 +113,7 @@ number_format = function(number, decimal_places=2, locale="th-TH") {
 
 module.exports = {
 	inDateRange,
-	inRange,
+	inRange, inBetween,
 	checkCond,
 	getTimestamp,
 	range,

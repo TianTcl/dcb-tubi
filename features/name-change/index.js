@@ -1,5 +1,17 @@
 const { getGuild, saveGuild } = require("../../memory");
-const { getUserState, canUse, recordUse, hasPrivilege } = require("./service");
+const { 
+	getUserState,
+	hasPrivilege,
+	canUse,
+	recordUse,
+	getRemaining,
+	isInfinite,
+	getCooldownRemaining,
+	getEffectiveLimit,
+	validateName,
+	normalizeName,
+	syncAutoRole
+} = require("./service");
 const { buildButton, buildModal } = require("./ui");
 const handle = require("./handle");
 require("../../helpers/proto");
@@ -32,37 +44,46 @@ async function handleCommand(interaction) {
 async function handleInteraction(interaction) {
 	const guildId = interaction.guildId,
 		data = await getGuild(guildId),
-		instances = data.app["name-change"].instance || [];
+		config = data.app["name-change"],
+		instances = config.instance || [];
 
-	if (interaction.isButton() && /name\-change:(\d+):request/.test(interaction.customId)) {
-		const instanceId = interaction.customId.match(/name\-change:(\d+):request/)[1],
+	if (interaction.isButton() && /name\-change:([A-Z0-9]+):request/i.test(interaction.customId)) {
+		const instanceId = interaction.customId.match(/name\-change:([A-Z0-9]+):request/i)[1],
+			instance = instances.find(i => i.id === instanceId),
 			state = getUserState(data, interaction.user.id);
+		if (!instance) return interaction.reply({
+			content: "This name change request is no longer valid.",
+			ephemeral: true
+		});
 		// Check eligibility
-		if (!canUse(state, instances[instanceId])) return interaction.reply({
+		if (!canUse(state, instance)) return interaction.reply({
 			content: "You do not have permission to change your display name.",
 			ephemeral: true
 		});
-		return interaction.showModal(buildModal(instanceId));
+		return interaction.showModal(buildModal(instanceId, state, config));
 	}
 
-	if (interaction.isModalSubmit() && /name\-change:(\d+):submit/.test(interaction.customId)) {
-		const instanceId = interaction.customId.match(/name\-change:(\d+):submit/)[1],
+	if (interaction.isModalSubmit() && /name\-change:([A-Z0-9]+):submit/i.test(interaction.customId)) {
+		const instanceId = interaction.customId.match(/name\-change:([A-Z0-9]+):submit/i)[1],
+			instance = instances.find(i => i.id === instanceId),
 			newName = interaction.fields.getTextInputValue(`name-change:${instanceId}:input`),
 			member = await interaction.guild.members.fetch(interaction.user.id),
 			state = getUserState(data, interaction.user.id);
+		if (!instance) return interaction.reply({
+			content: "This name change request is no longer valid.",
+			ephemeral: true
+		});
 		// Check eligibility
-		if (!canUse(state, instances[instanceId])) return interaction.reply({
+		if (!canUse(state, instance)) return interaction.reply({
 			content: "You do not have permission to change your display name.",
 			ephemeral: true
 		});
 		// Filter names
-		// TODO: filter for bad words.
-		var impersionation = instances[instanceId].impersonation ?? config.impersionation;
-		if (!impersionation) {
-			// TODO: Implement actual impersonation check
-			// - Check against guild members' usernames and nicknames
-			// - Check against common names (e.g. "Admin", "Moderator")
-		}
+		const validation = validateName(newName, interaction.guild, config, instance);
+		if (!validation.ok) return interaction.reply({
+			content: validation.reason,
+			ephemeral: true
+		});
 		// Complete action
 		try {
 			await member.setNickname(newName);
@@ -75,6 +96,7 @@ async function handleInteraction(interaction) {
 		}
 		recordUse(state, newName);
 		await saveGuild(guildId, data);
+		await syncAutoRole(member, state, config);
 		return interaction.reply({
 			content: `Your display name has been updated to **${newName}**.`,
 			ephemeral: true
