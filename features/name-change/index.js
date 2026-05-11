@@ -79,7 +79,7 @@ async function handleInteraction(interaction) {
 			ephemeral: true
 		});
 		// Filter names
-		const validation = validateName(newName, interaction.guild, config, instance);
+		const validation = await validateName(newName, interaction.guild, config, instance);
 		if (!validation.ok) return interaction.reply({
 			content: validation.reason,
 			ephemeral: true

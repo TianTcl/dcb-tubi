@@ -64,7 +64,7 @@ function normalizeName(name) {
 	return name.trim().toCamelCase().toLowerCase();
 }
 
-function validateName(newName, guild, config, instance) {
+async function validateName(newName, guild, config, instance) {
 	const norm = normalizeName(newName);
 	if (!Utils.inBetween(norm.length, 1, 32)) return {
 		ok: false,
@@ -82,10 +82,10 @@ function validateName(newName, guild, config, instance) {
 			ok: false,
 			reason: "Staff-like names are not allowed."
 		};
-		const conflict = guild.members.cache.any(m => !m.user.bot && (
+		const conflict = await guild.members.fetch().any(m => !m.user.bot && (
 				normalizeName(m.user.username) === norm ||
 				(m.nickname && normalizeName(m.nickname) === norm)
-		)) || guild.roles.cache.any(r => normalizeName(r.name) === norm);
+		)) || await guild.roles.fetch().any(r => normalizeName(r.name) === norm);
 		if (conflict) return {
 			ok: false,
 			reason: "Display name cannot impersonate another user in the server."
@@ -109,7 +109,7 @@ async function syncAutoRole(member, state, config) {
 }
 
 async function syncAllAutoRoles(guild, data, config) {
-	for (const member of guild.members.cache.values()) {
+	for (const member of await guild.members.fetch().values()) {
 		if (member.user.bot) continue;
 		const state = getUserState(data, member.id);
 		await syncAutoRole(member, state, config);
