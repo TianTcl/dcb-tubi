@@ -214,7 +214,7 @@ async function add(interaction, guildId, data, config, instances) {
 	if (state.limit > 0) state.limit += amount;
 
 	await saveGuild(guildId, data);
-	await syncAutoRole(user, state, config);
+	await syncAutoRole(user, state, config, interaction);
 	return interaction.reply({ content: `Added ${amount} to ${user.tag}'s limit.`, ephemeral: false });
 }
 
@@ -226,7 +226,7 @@ async function remove(interaction, guildId, data, config, instances) {
 	if (state.limit > 0) state.limit = Math.max(0, state.limit - amount); // Ignoring if used will be more than limit
 
 	await saveGuild(guildId, data);
-	await syncAutoRole(user, state, config);
+	await syncAutoRole(user, state, config, interaction);
 	return interaction.reply({ content: `Removed ${amount} from ${user.tag}'s limit.`, ephemeral: false });
 }
 
@@ -247,7 +247,7 @@ async function reset(interaction, guildId, data, config, instances) {
 	}
 
 	await saveGuild(guildId, data);
-	await syncAutoRole(user, state, config);
+	await syncAutoRole(user, state, config, interaction);
 	return interaction.reply({ content: `User ${user.tag}'s name changing manifest has been reset.`, ephemeral: false });
 }
 
@@ -259,7 +259,7 @@ async function setUserLimit(interaction, guildId, data, config, instances) {
 	state.limit = Math.max(-1, limit); // -1 for infinite
 
 	await saveGuild(guildId, data);
-	await syncAutoRole(user, state, config);
+	await syncAutoRole(user, state, config, interaction);
 	return interaction.reply({ content: `User ${user.tag}'s limit has been updated to ${state.limit < 0 ? "infinity" : state.limit}.`, ephemeral: false });
 }
 

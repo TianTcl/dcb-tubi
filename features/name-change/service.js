@@ -82,7 +82,8 @@ async function validateName(newName, guild, config, instance) {
 			ok: false,
 			reason: "Staff-like names are not allowed."
 		};
-		const conflict = await guild.members.fetch().any(m => !m.user.bot && (
+		const members = await guild.members.fetch(),
+			conflict = members.values().any(m => !m.user.bot && (
 				normalizeName(m.user.username) === norm ||
 				(m.nickname && normalizeName(m.nickname) === norm)
 		)) || await guild.roles.fetch().any(r => normalizeName(r.name) === norm);
@@ -94,9 +95,10 @@ async function validateName(newName, guild, config, instance) {
 	return { ok: true };
 }
 
-async function syncAutoRole(member, state, config) {
+async function syncAutoRole(user, state, config, interaction=null) {
 	if (!config.autoRole) return;
-	const role = await member.guild.roles.cache.get(config.autoRole);
+	const member = interaction == null ? user : await interaction.guild.members.fetch(user.id),
+		role = await member.guild.roles.cache.get(config.autoRole);
 	if (!role) return;
 	const remaining = getRemaining(state, config);
 	if (remaining === Infinity || remaining > 0) {
@@ -109,7 +111,8 @@ async function syncAutoRole(member, state, config) {
 }
 
 async function syncAllAutoRoles(guild, data, config) {
-	for (const member of await guild.members.fetch().values()) {
+	const members = await guild.members.fetch();
+	for (const member of members.values()) {
 		if (member.user.bot) continue;
 		const state = getUserState(data, member.id);
 		await syncAutoRole(member, state, config);

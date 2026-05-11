@@ -33,10 +33,9 @@ project/
 ## TODOs
 
 In /features/name-change
-- Implement name filtering
-- Autorole: role
+- Filter: bad words
 In /features/configure
-- add /reset <confirm> command: purgeGuild()
+- add /reset <confirm> command: purgeGuild() // erase all guild data (back to default)
 - add /config command
 
 # Self paste notes
