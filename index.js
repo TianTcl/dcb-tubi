@@ -45,4 +45,8 @@ client.on(Events.InteractionCreate, async interaction => {
 	await loader.handleInteraction(interaction);
 });
 
+client.on(Events.GuildMemberAdd, async member => {
+	await loader.handleGuildMemberAdd(member);
+});
+
 client.login(process.env.TOKEN);

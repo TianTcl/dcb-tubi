@@ -104,7 +104,16 @@ async function handleInteraction(interaction) {
 	}
 }
 
+async function handleGuildMemberAdd(member) {
+	const guildId = member.guild.id,
+		data = await getGuild(guildId),
+		feature = require("./service"),
+		state = feature.getUserState(data, member.id);
+	await feature.syncAutoRole(member, state, data.app["name-change"]);
+}
+
 module.exports = {
 	handleCommand,
-	handleInteraction
+	handleInteraction,
+	handleGuildMemberAdd
 };

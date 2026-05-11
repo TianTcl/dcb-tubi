@@ -35,7 +35,14 @@ async function handleInteraction(interaction) {
 	});
 }
 
+// Handle Events
+async function handleGuildMemberAdd(member) {
+	// Name change
+	await nameChange.handleGuildMemberAdd(member);
+};
+
 module.exports = {
 	handleInteraction,
-	loadCommands
+	loadCommands,
+	handleGuildMemberAdd
 };

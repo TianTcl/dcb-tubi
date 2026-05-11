@@ -82,7 +82,7 @@ function validateName(newName, guild, config, instance) {
 			ok: false,
 			reason: "Staff-like names are not allowed."
 		};
-		const conflict = guild.members.cache.any(m => (
+		const conflict = guild.members.cache.any(m => !m.user.bot && (
 				normalizeName(m.user.username) === norm ||
 				(m.nickname && normalizeName(m.nickname) === norm)
 		)) || guild.roles.cache.any(r => normalizeName(r.name) === norm);
@@ -108,6 +108,14 @@ async function syncAutoRole(member, state, config) {
 	}
 }
 
+async function syncAllAutoRoles(guild, data, config) {
+	for (const member of guild.members.cache.values()) {
+		if (member.user.bot) continue;
+		const state = getUserState(data, member.id);
+		await syncAutoRole(member, state, config);
+	}
+}
+
 module.exports = {
 	getUserState,
 	hasPrivilege,
@@ -120,4 +128,5 @@ module.exports = {
 	normalizeName,
 	validateName,
 	syncAutoRole,
+	syncAllAutoRoles
 };

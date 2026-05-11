@@ -7,7 +7,8 @@ const {
 	getRemaining,
 	isInfinite,
 	getCooldownRemaining,
-	getEffectiveLimit
+	getEffectiveLimit,
+	syncAllAutoRoles
 } = require("./service");
 const { buildButton, buildModal, buildEmbed } = require("./ui");
 const regex = require("../../helpers/regex");
@@ -23,10 +24,12 @@ async function setDefault(interaction, guildId, data, config, instances) {
 		});
 		config.limit = limit;
 		await saveGuild(guildId, data);
-		for (const member of interaction.guild.members.fetch().values()) {
-			const state = getUserState(data, member.id);
-			if (state.limit === null) await syncAutoRole(member, state, config);
-		}
+		// for (const member of interaction.guild.members.fetch().values()) {
+		// 	if (member.user.bot) continue;
+		// 	const state = getUserState(data, member.id);
+		// 	if (state.limit === null) await syncAutoRole(member, state, config);
+		// }
+		await syncAllAutoRoles(interaction.guild, data, config);
 		return interaction.reply({
 			content: `Default limit set to ${config.limit == -1 ? "infinite" : config.limit} times.`,
 			ephemeral: false
@@ -100,6 +103,7 @@ async function autoRole(interaction, guildId, data, config, instances) {
 	});
 	config.autoRole = role?.id || null;
 	await saveGuild(guildId, data);
+	await syncAllAutoRoles(interaction.guild, data, config);
 	return interaction.reply({
 		content: config.autoRole ? `Auto role <@&${config.autoRole}> has been set.\nThis role will be automatically assigned to users who can still change their nickname.` : "Auto role has been disabled.",
 		ephemeral: false
