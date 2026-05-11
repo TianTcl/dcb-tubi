@@ -8,6 +8,7 @@ const {
 	isInfinite,
 	getCooldownRemaining,
 	getEffectiveLimit,
+	syncAutoRole,
 	syncAllAutoRoles
 } = require("./service");
 const { buildButton, buildModal, buildEmbed } = require("./ui");
