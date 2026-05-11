@@ -308,6 +308,7 @@ async function history(interaction, guildId, data, config, instances) {
 
 module.exports = {
 	setDefault,
+	autoRole,
 	setup,
 	edit,
 	deleteInstance,
