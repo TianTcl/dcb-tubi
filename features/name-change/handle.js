@@ -265,9 +265,10 @@ async function setUserLimit(interaction, guildId, data, config, instances) {
 
 async function setRoleLimit(interaction, guildId, data, config, instances) {
 	const role = interaction.options.getRole("role"),
-		limit = interaction.options.getInteger("limit");
-	
-	for (const member of role.members.values()) {
+		limit = interaction.options.getInteger("limit"),
+		members = await interaction.guild.members.fetch({ role: role.id });
+
+	for (const member of members.values()) {
 		const state = getUserState(data, member.id);
 		state.limit = Math.max(-1, limit); // -1 for infinite
 		await syncAutoRole(member, state, config);
