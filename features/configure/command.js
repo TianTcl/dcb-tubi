@@ -1,6 +1,6 @@
 module.exports = [
 	new SlashCommandBuilder()
-		.setName("configure")
+		.setName("config")
 		.setDescription("Manage 兔ฺBI bot configurations")
 		.setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
 		// Sub commands

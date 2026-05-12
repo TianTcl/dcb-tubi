@@ -58,11 +58,32 @@ function getEffectiveLimit(state, config) {
 }
 
 function normalizeName(name) {
-	return name.trim().toCamelCase().toLowerCase();
+	return name.trim()
+		.normalize("NFKD")
+		.toCamelCase().toLowerCase();
 }
 
+function sanitizeName(name) {
+	return normalizeName(name)
+		.replace(/[0@]/g, "o")
+		.replace(/[1!|]/g, "i")
+		.replace(/[3]/g, "e")
+		.replace(/[4@]/g, "a")
+		.replace(/[5$]/g, "s")
+		.replace(/[7]/g, "t")
+		.replace(/[^a-z0-9]/g, "");
+}
+
+const BAD_WORDS = [
+	// ChatGPT
+	"nigger", "nigga", "faggot", "retard", "cunt", "bitch", "whore", "slut", "fuck", "shit",
+	// Self
+	"crap", "badass", "asshole", "prick", "pussy", "dick", "cock", "spank", "cum", "vagina", "clit", "clitoris",
+	"ควย", "เหี้ย", "ไอสัตว์", "แม่ง", "พ่อง", "หี", "ไอ้", "เย็ด", "กู", "มึง", "แดก", "จู๋", "จิ๋ม"
+];
+
 async function validateName(newName, guild, config, instance) {
-	const norm = normalizeName(newName);
+	const norm = sanitizeName(newName);
 	if (!Utils.inBetween(norm.length, 1, 32)) return {
 		ok: false,
 		reason: "Display name must be between 1 and 32 characters long."
@@ -72,7 +93,10 @@ async function validateName(newName, guild, config, instance) {
 		reason: "Display name cannot contain user or role mentions."
 	};
 	// TODO: filter for bad words.
-	
+	if (BAD_WORDS.some(word => norm.includes(word))) return {
+		ok: false,
+		reason: "Display name cannot contain inappropriate language."
+	};
 	const impersonation = instance.impersonation ?? config.impersonation;
 	if (!impersonation) {
 		if (regex.COMMON_STAFF_NAMES.test(norm)) return {
@@ -81,9 +105,9 @@ async function validateName(newName, guild, config, instance) {
 		};
 		const members = await guild.members.fetch(),
 			conflict = members.values().any(m => !m.user.bot && (
-				normalizeName(m.user.username) === norm ||
-				(m.nickname && normalizeName(m.nickname) === norm)
-		)) || await guild.roles.fetch().any(r => normalizeName(r.name) === norm);
+				sanitizeName(m.user.username) === norm ||
+				(m.nickname && sanitizeName(m.nickname) === norm)
+		)) || await guild.roles.fetch().any(r => sanitizeName(r.name) === norm);
 		if (conflict) return {
 			ok: false,
 			reason: "Display name cannot impersonate another user in the server."

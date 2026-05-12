@@ -32,13 +32,6 @@ project/
 
 ## TODOs
 
-In /features/name-change
-- Filter: bad words
-In /features/configure
-- add /reset <confirm> command: purgeGuild()
-  // erase all guild data (back to default)
-  // Not sure how should the confirmation goes, confirm()?
-- add /config command
 In /features/stream-song
 - I have a directory with 1 level sub-dir filled with mp3 files and 1 sub-dir with m3u8 files located on the other partition of the machine (I could create a mklnk /J).
 - Not sure what commands and controls I should create.
