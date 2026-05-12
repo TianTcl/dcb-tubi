@@ -143,7 +143,7 @@ async function syncAllAutoRoles(guild, data, config) {
 	await bulkSyncAutoRole(tasks);
 }
 
-function bulkSyncAutoRole(tasks, batchSize=5) {
+async function bulkSyncAutoRole(tasks, batchSize=5) {
 	for (let i = 0; i < tasks.length; i += batchSize) {
 		const chunk = tasks.slice(i, i + batchSize).map(fn => fn());
 		await Promise.all(chunk);

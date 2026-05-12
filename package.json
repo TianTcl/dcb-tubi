@@ -11,9 +11,13 @@
 		"dev": "nodemon --delay 1.5s index.js"
 	},
 	"dependencies": {
+		"@discordjs/voice": "^0.19.2",
 		"discord.js": "^14.26.4",
 		"dotenv": "^17.4.2",
-		"mysql2": "^3.22.3"
+		"fuse.js": "^7.3.0",
+		"music-metadata": "^11.12.3",
+		"mysql2": "^3.22.3",
+		"sodium-native": "^5.1.0"
 	},
 	"devDependencies": {
 		"nodemon": "^3.1.14"
