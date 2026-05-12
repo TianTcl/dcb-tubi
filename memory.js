@@ -54,5 +54,6 @@ async function purgeGuild(guildId) {
 
 module.exports = {
 	getGuild,
-	saveGuild
+	saveGuild,
+	purgeGuild
 };

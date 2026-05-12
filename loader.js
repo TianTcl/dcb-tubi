@@ -1,36 +1,62 @@
 const fs = require("fs");
 const path = require("path");
 require("dotenv").config();
+require("./helpers/proto");
 
 // Import commands
 function loadCommands() {
-	const commands = [];
+	const featuresPath = path.join(__dirname, "features"),
+		commands = [];
 
-	const nc = require("./features/name-change/command");
-	commands.push(...nc);
+	const featuresFolders = fs.readdirSync(featuresPath, { withFileTypes: true })
+		.filter(dirent => dirent.isDirectory())
+		.map(dirent => dirent.name);
+
+	for (const feature of featuresFolders) {
+		const commandPath = path.join(featuresPath, feature, "command.js");
+		if (!fs.existsSync(commandPath)) continue;
+
+		const featureCommands = require(`./features/${feature}/command`);
+		commands.push(...featureCommands);
+	}
 
 	return commands.map(cmd => cmd.toJSON());
 }
 
 // Interaction routing
-const nameChange = require("./features/name-change");
+const features = {};
+(() => {
+	const featuresPath = path.join(__dirname, "features");
+	const featuresFolders = fs.readdirSync(featuresPath, { withFileTypes: true })
+		.filter(dirent => dirent.isDirectory())
+		.map(dirent => dirent.name);
+	for (const feature of featuresFolders) {
+		const entryPath = path.join(featuresPath, feature, "index.js");
+		if (!fs.existsSync(entryPath)) continue;
+
+		features[feature.kebabToCamelCase()] = require(`./features/${feature}`);
+	}
+})();
 
 async function handleInteraction(interaction) {
 	// Slash commands
 	if (interaction.isChatInputCommand()) {
 		console.info(`User ${interaction.user.tag} executed command ${interaction.options.getSubcommandGroup(false) ? `${interaction.options.getSubcommandGroup(false)} ` : ""}${interaction.options.getSubcommand(false) ? `${interaction.options.getSubcommand(false)} ` : ""}${interaction.commandName}`);
-		switch (interaction.commandName) {
-			case "name-change":
-				return nameChange.handleCommand(interaction);
-				break;
-		}
+		// Kebab to camel case for feature mapping
+		var featName = interaction.commandName.kebabToCamelCase();
+		if (typeof features[featName]?.handleCommand !== "function")
+			return interaction.reply({
+				content: "Unknown command :(",
+				ephemeral: true
+			});
+		return await features[featName].handleCommand(interaction);
 	}
 	// Components
 	if (interaction.isButton() || interaction.isModalSubmit()) {
 		return nameChange.handleInteraction(interaction);
 	}
 	return interaction.reply({
-		content: "Unknown command :(",
+		content: "兔BI does not know how to handle this interaction :(",
 		ephemeral: true
 	});
 }
