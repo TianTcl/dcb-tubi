@@ -53,7 +53,7 @@ async function handleInteraction(interaction) {
 	}
 	// Components
 	if (interaction.isButton() || interaction.isModalSubmit()) {
-		return nameChange.handleInteraction(interaction);
+		return features["nameChange"].handleInteraction(interaction);
 	}
 	return interaction.reply({
 		content: "兔BI does not know how to handle this interaction :(",
@@ -64,7 +64,7 @@ async function handleInteraction(interaction) {
 // Handle Events
 async function handleGuildMemberAdd(member) {
 	// Name change
-	await nameChange.handleGuildMemberAdd(member);
+	await features["nameChange"].handleGuildMemberAdd(member);
 };
 
 module.exports = {
