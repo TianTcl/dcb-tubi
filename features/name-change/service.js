@@ -109,11 +109,20 @@ async function syncAutoRole(user, state, config, interaction=null) {
 }
 
 async function syncAllAutoRoles(guild, data, config) {
-	const members = await guild.members.fetch();
+	const members = await guild.members.fetch(),
+		tasks = [];
 	for (const member of members.values()) {
 		if (member.user.bot) continue;
 		const state = getUserState(data, member.id);
-		await syncAutoRole(member, state, config);
+		tasks.push(() => syncAutoRole(member, state, config));
+	}
+	await bulkSyncAutoRole(tasks);
+}
+
+function bulkSyncAutoRole(tasks, batchSize=5) {
+	for (let i = 0; i < tasks.length; i += batchSize) {
+		const chunk = tasks.slice(i, i + batchSize).map(fn => fn());
+		await Promise.all(chunk);
 	}
 }
 
@@ -129,5 +138,6 @@ module.exports = {
 	normalizeName,
 	validateName,
 	syncAutoRole,
-	syncAllAutoRoles
+	syncAllAutoRoles,
+	bulkSyncAutoRole
 };

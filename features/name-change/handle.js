@@ -25,11 +25,6 @@ async function setDefault(interaction, guildId, data, config, instances) {
 		});
 		config.limit = limit;
 		await saveGuild(guildId, data);
-		// for (const member of interaction.guild.members.fetch().values()) {
-		// 	if (member.user.bot) continue;
-		// 	const state = getUserState(data, member.id);
-		// 	if (state.limit === null) await syncAutoRole(member, state, config);
-		// }
 		await interaction.deferReply({ ephemeral: false });
 		await syncAllAutoRoles(interaction.guild, data, config);
 		return interaction.editReply({
@@ -226,17 +221,19 @@ async function add(interaction, guildId, data, config, instances) {
 async function roleAdd(interaction, guildId, data, config, instances) {
 	const role = interaction.options.getRole("role"),
 		amount = interaction.options.getInteger("amount"),
-		members = await interaction.guild.members.fetch({ role: role.id });
+		members = await interaction.guild.members.fetch({ role: role.id }),
+		tasks = [];
 
 	await interaction.deferReply({ ephemeral: false });
 	for (const member of members.values()) {
 		const state = getUserState(data, member.id);
 		if (isInfinite(state, config)) continue; // Ignoring if already infinite
 		state.limit += amount;
-		await syncAutoRole(member, state, config);
+		tasks.push(() => syncAutoRole(member, state, config));
 	}
 
 	await saveGuild(guildId, data);
+	await bulkSyncAutoRole(tasks);
 	return interaction.editReply({ content: `Added ${amount} to all users with role ${role.name}.` });
 }
 
@@ -260,17 +257,19 @@ async function remove(interaction, guildId, data, config, instances) {
 async function roleRemove(interaction, guildId, data, config, instances) {
 	const role = interaction.options.getRole("role"),
 		amount = interaction.options.getInteger("amount"),
-		members = await interaction.guild.members.fetch({ role: role.id });
+		members = await interaction.guild.members.fetch({ role: role.id }),
+		tasks = [];
 
 	await interaction.deferReply({ ephemeral: false });
 	for (const member of members.values()) {
 		const state = getUserState(data, member.id);
 		if (isInfinite(state, config)) continue; // Ignoring if already infinite
 		state.limit = Math.max(0, state.limit - amount); // Ignoring if used will be more than limit
-		await syncAutoRole(member, state, config);
+		tasks.push(() => syncAutoRole(member, state, config));
 	}
 
 	await saveGuild(guildId, data);
+	await bulkSyncAutoRole(tasks);
 	return interaction.editReply({ content: `Removed ${amount} from all users with role ${role.name}.` });
 }
 
@@ -298,7 +297,8 @@ async function reset(interaction, guildId, data, config, instances) {
 async function roleReset(interaction, guildId, data, config, instances) {
 	const role = interaction.options.getRole("role"),
 		field = interaction.options.getString("field"),
-		members = await interaction.guild.members.fetch({ role: role.id });
+		members = await interaction.guild.members.fetch({ role: role.id }),
+		tasks = [];
 
 	var fields = [field].filter();
 	if (!fields.length) fields = ["used", "limit"]; // "cooldown"
@@ -313,10 +313,11 @@ async function roleReset(interaction, guildId, data, config, instances) {
 		} // if (fields.includes("cooldown")) {
 		// 	state.cooldown = 0;
 		// }
-		await syncAutoRole(member, state, config);
+		tasks.push(() => syncAutoRole(member, state, config));
 	}
 
 	await saveGuild(guildId, data);
+	await bulkSyncAutoRole(tasks);
 	return interaction.editReply({ content: `Role ${role.name} users' name changing manifest has been reset.` });
 }
 
@@ -335,16 +336,18 @@ async function limit(interaction, guildId, data, config, instances) {
 async function roleLimit(interaction, guildId, data, config, instances) {
 	const role = interaction.options.getRole("role"),
 		limit = interaction.options.getInteger("limit"),
-		members = await interaction.guild.members.fetch({ role: role.id });
+		members = await interaction.guild.members.fetch({ role: role.id }),
+		tasks = [];
 
 	await interaction.deferReply({ ephemeral: false });
 	for (const member of members.values()) {
 		const state = getUserState(data, member.id);
 		state.limit = Math.max(-1, limit); // -1 for infinite
-		await syncAutoRole(member, state, config);
+		tasks.push(() => syncAutoRole(member, state, config));
 	}
 
 	await saveGuild(guildId, data);
+	await bulkSyncAutoRole(tasks);
 	return interaction.editReply({ content: `Role ${role.name} users limit has been updated to ${limit < 0 ? "infinity" : limit}.` });
 }
 
