@@ -135,10 +135,17 @@ async function setup(interaction, guildId, data, config, instances) {
 		impersonation: impersonation ?? config.impersonation
 	};
 
-	const msg = await channel.send({
-		embeds: [buildEmbed(instance)],
-		components: [buildButton(instanceId)]
-	});
+	try {
+		const msg = await channel.send({
+			embeds: [buildEmbed(instance)],
+			components: [buildButton(instanceId)]
+		});
+	} catch (err) {
+		return interaction.reply({
+			content: "Failed to send message in the specified channel. Please check my permissions and try again.",
+			ephemeral: false
+		});
+	}
 
 	instance.messageId = msg.id;
 	instances.push(instance);
