@@ -1,4 +1,5 @@
 const { getGuild, saveGuild, purgeGuild } = require("../../memory");
+const { hasPrivilege } = require("../../helpers/permissions");
 const handle = require("./handle");
 require("../../helpers/proto");
 
