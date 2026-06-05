@@ -140,21 +140,21 @@ async function setup(interaction, guildId, data, config, instances) {
 			embeds: [buildEmbed(instance)],
 			components: [buildButton(instanceId)]
 		});
+
+		instance.messageId = msg.id;
+		instances.push(instance);
+		await saveGuild(guildId, data);
+
+		return interaction.reply({
+			content: `Setup complete in <#${channel.id}>.\nThe message ID is ${msg.id} [[jump to message](https://discord.com/channels/${guildId}/${channel.id}/${msg.id})].`,
+			ephemeral: false
+		});
 	} catch (err) {
 		return interaction.reply({
 			content: "Failed to send message in the specified channel. Please check my permissions and try again.",
 			ephemeral: false
 		});
 	}
-
-	instance.messageId = msg.id;
-	instances.push(instance);
-	await saveGuild(guildId, data);
-
-	return interaction.reply({
-		content: `Setup complete in <#${channel.id}>.\nThe message ID is ${msg.id} [[jump to message](https://discord.com/channels/${guildId}/${channel.id}/${msg.id})].`,
-		ephemeral: false
-	});
 }
 
 async function edit(interaction, guildId, data, config, instances) {
