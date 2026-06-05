@@ -1,5 +1,4 @@
 const { getGuild, saveGuild, purgeGuild } = require("../../memory");
-const { hasPrivilege } = require("../../helpers/permissions");
 const handle = require("./handle");
 require("../../helpers/proto");
 
@@ -10,7 +9,7 @@ async function handleCommand(interaction) {
 		config = data.app["name-change"],
 		instances = config.instance;
 
-	if (!hasPrivilege(interaction, data)) return interaction.reply({
+	if (!interaction.member.permissions.has("Administrator")) return interaction.reply({
 		content: "You do not have permission to configure this bot.",
 		ephemeral: true
 	});
