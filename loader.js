@@ -44,6 +44,7 @@ async function handleInteraction(interaction) {
 		console.info(`User ${interaction.user.tag} executed command ${interaction.options.getSubcommandGroup(false) ? `${interaction.options.getSubcommandGroup(false)} ` : ""}${interaction.options.getSubcommand(false) ? `${interaction.options.getSubcommand(false)} ` : ""}${interaction.commandName}`);
 		// Kebab to camel case for feature mapping
 		var featName = interaction.commandName.kebabToCamelCase();
+		if (featName == "config") featName = "configure";
 		if (typeof features[featName]?.handleCommand !== "function")
 			return interaction.reply({
 				content: "Unknown command :(",
