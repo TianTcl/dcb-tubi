@@ -104,10 +104,10 @@ async function validateName(newName, guild, config, instance) {
 			reason: "Staff-like names are not allowed."
 		};
 		const members = await guild.members.fetch(),
-			conflict = members.values().any(m => !m.user.bot && (
+			conflict = members.values().some(m => !m.user.bot && (
 				sanitizeName(m.user.username) === norm ||
 				(m.nickname && sanitizeName(m.nickname) === norm)
-		)) || await guild.roles.fetch().any(r => sanitizeName(r.name) === norm);
+		)) || await guild.roles.fetch().some(r => sanitizeName(r.name) === norm);
 		if (conflict) return {
 			ok: false,
 			reason: "Display name cannot impersonate another user in the server."
