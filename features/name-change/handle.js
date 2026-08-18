@@ -1,3 +1,4 @@
+const { EmbedBuilder } = require("discord.js");
 const { getGuild, saveGuild } = require("../../memory");
 const { 
 	getUserState,
