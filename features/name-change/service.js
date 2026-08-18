@@ -107,7 +107,7 @@ async function validateName(newName, guild, config, instance) {
 			conflict = members.values().some(m => !m.user.bot && (
 				sanitizeName(m.user.username) === norm ||
 				(m.nickname && sanitizeName(m.nickname) === norm)
-		)) || await guild.roles.fetch().values().some(r => sanitizeName(r.name) === norm);
+		)) || (await guild.roles.fetch()).values().some(r => sanitizeName(r.name) === norm);
 		if (conflict) return {
 			ok: false,
 			reason: "Display name cannot impersonate another user in the server."
