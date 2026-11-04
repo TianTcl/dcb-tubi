@@ -10,7 +10,8 @@ const {
 	getCooldownRemaining,
 	getEffectiveLimit,
 	syncAutoRole,
-	syncAllAutoRoles
+	syncAllAutoRoles,
+	bulkSyncAutoRole
 } = require("./service");
 const { buildButton, buildModal, buildEmbed } = require("./ui");
 const regex = require("../../helpers/regex");
