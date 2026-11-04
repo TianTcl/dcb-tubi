@@ -30,6 +30,8 @@ project/
 │   ├── proto.js            # Add additional prototypes
 │   ├── regex.js            # Central Regular Expression reference
 │   └── utils.js            # Add functions for convenience
+├── src/
+│   └── updater.js          # Auto pull git updates
 │
 └── .env
 ```
@@ -38,6 +40,9 @@ project/
 
 In /features/stream-song
 - Implement: [help](https://chatgpt.com/c/6a017c15-1d7c-83e8-8263-8afdfc3c4985)
+
+### Known Bugs
+- `/name-change role-add role:@VIP amount:100` should add 9 users, but 30 get instead.
 
 # Self paste notes
 
