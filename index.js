@@ -1,5 +1,6 @@
 const { Client, GatewayIntentBits, Events } = require("discord.js");
 const loader = require("./loader");
+require("./src/updater").startUpdater();
 
 require("dotenv").config();
 
